@@ -1,0 +1,162 @@
+---
+title: Is Nebraska the best worst 3-9 college football team?
+author: Alyssa Bizzarri
+date: '2022-04-08'
+slug: is-nebraska-the-best-worst-3-9-college-football-team
+categories: []
+tags: []
+---
+```{r message=FALSE, warning=FALSE, echo=FALSE} 
+library(tidyverse)
+library(cfbfastR)
+library(ggalt)
+library(ggrepel)
+```
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+advanced <- cfbd_stats_season_advanced(2021)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+offense <- read_csv("scoringoffense.csv") %>% select(Name, Points) %>% rename(PointsScored = Points)
+defense <- read_csv("scoringdefense.csv") %>% select(Name, Points) %>% rename(PointsAllowed = Points)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+points <- offense %>% left_join(defense)
+```
+
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+big <- c("Nebraska", "Iowa", "Michigan", "Ohio State", "Michigan State", "Wisconsin", "Illinois", "Maryland", "Rutgers", "Penn State", "Northwestern", "Minnesota", "Purdue", "Indiana")
+```
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+notgreat <- c("Nebraska", "Northwestern", "New Mexico", "Georgia Tech", "Temple", "Southern Mississippi", "Colorado State", "Stanford", "Georgia Southern", "Louisiana Tech", "Ohio", "Duke")
+```
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+difference <- points %>% mutate(Difference = PointsScored - PointsAllowed) %>% arrange(desc(Difference))
+```
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+threewins <- difference %>% filter(Name %in% notgreat)
+```
+The past decade for Nebraska football fans has been not up to the expectations. The 2021 Nebraska Football season was yet another tough one to watch. Game after game, the fans got their hopes up in faith that the Huskers would pull it off, but to end up always finding a way to lose.
+
+Despite us having a bad record this year, there has been drastic improvement from the two previous years. The Big 10 is known to be a tough conference. The only loss this season that was more than one possession was the game played against Ohio State, which they lost by nine points. Every other game the Huskers lost was between 3-8 points. 
+
+So, are they the best 3-9 college football team?
+
+Let’s take a look.
+
+To see how Nebraska looks among the college 3-9 teams, we will put them next to each other and compare the difference of the points scored by each team and the points they allowed. 
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+ggplot() + 
+  geom_dumbbell(
+    data=threewins, 
+    aes(y=Name, x=PointsScored, xend=PointsAllowed),
+    size = 2,
+    colour = "dark grey",
+    colour_x = "red",
+    colour_xend = "blue") +
+  labs(title="The 3-9 teams differnce in points ", subtitle="Red dots looking at points scored and blue dots looking at points allowed.", x="Points", y="Teams", caption = "Source: cfbfastR | By Alyssa Bizzarri")   +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=11), 
+    panel.grid.minor = element_blank(),
+    plot.title.position = "plot"
+    ) 
+```
+Notice anything different about Nebraska? Notice how they scored more points than they allowed while the other 3-9 teams scored less points than they allowed. 
+
+That is just looking at Nebraska against the 3-9 teams. Now, look at where the Huskers stand among the national college teams leading in offense and defensive scoring. 
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+nebraska <-points %>% 
+  filter(Name =="Nebraska")
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+ggplot() + 
+  geom_point(
+    data=points, 
+    aes(x=PointsScored, y=PointsAllowed), 
+    color="grey") + 
+  geom_point(
+    data=threewins, 
+    aes(x=PointsScored, y=PointsAllowed), 
+    color="blue") + 
+  geom_vline(xintercept = 363.5) + 
+  geom_hline(yintercept = 338.7308) +
+  geom_point(
+    data = nebraska,
+    aes(x=PointsScored, y=PointsAllowed), 
+    color="red") + 
+  geom_text_repel(
+    data=nebraska, 
+    aes(x=PointsScored, y=PointsAllowed, label=Name))+
+  labs(
+    x="Points Scored", 
+    y="Points Allowed", 
+    title="Nebraska strays away", 
+    subtitle="The blue dots stand for the 3-9 teams while the grey dots are the national leading colleges in offensive/defensive scoring.", 
+    caption="Source: cfbfastR | By Alyssa Bizzarri"
+    ) +
+  theme_minimal()+ 
+  theme(
+    plot.title.position = "plot",
+   plot.title = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    ) 
+```
+
+You see that all the other 3-9 teams are higher up on the graph, showing that they allowed more points to be scored on them, than themselves doing the scoring. While Nebraska has the least number of points allowed, keeping up with those other teams who had winning records. 
+
+ 
+Going back and looking at just the 3-9 teams, you really get to see why Nebraska is said to be the best out of these teams.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(gt)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+threewins %>% 
+  gt() %>%
+  cols_label(
+    PointsScored = "Points Scored",
+    PointsAllowed = "Points Allowed"
+  ) %>%
+  tab_header(
+    title = "Nebraska with the best point differential",
+    subtitle = "The Huskers are at the top of the list for the highest point differential with the 3-9 teams for the 2021 football season."
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold", align = "left"),
+    locations = cells_title("title")
+  ) %>% tab_style(
+    style = cell_text(color = "black", align = "left"),
+    locations = cells_title("subtitle")
+  ) %>%
+  tab_source_note(
+    source_note = md("**By:** Alyssa Bizzarri  |  **Source:** cfbfastR")
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "red"),
+      cell_text(color = "white")
+      ),
+    locations = cells_body(
+      rows = Name == "Nebraska")
+  )
+```
+
+Nebraska having the only positive difference says something, right?
+
+The Huskers have the potential to close out some of those one possession games. They are one of the best 3-9 football teams ever. Hopefully they can take this effort and put forth a winning record for the 2022 season.
+
+The code for this point can be found [here]().
+
+
+
+
+
