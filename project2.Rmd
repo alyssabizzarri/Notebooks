@@ -1,0 +1,147 @@
+---
+title: Will Nebraska Volleyball still be a major competetor this coming fall?
+author: Alyssa Bizzarri
+date: '2022-04-29'
+slug: will-nebraska-volleyball-still-be-a-major-competetor-this-coming-fall
+categories: []
+tags: []
+---
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(tidyverse)
+library(scales)
+library(ggrepel)
+library(gt)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+rankings <- read_csv("volleyballrankings.csv") %>% mutate(School = gsub(" (64)", "", School, fixed=TRUE))
+ncaa <- read_csv("ncaastats.csv")
+nuplayers <- read_csv("NUplayers.csv")
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+big <- c("Nebraska", "Michigan", "Ohio State", "Wisconsin","Penn State", "Minnesota", "Purdue", "Illinios") 
+bigten <- rankings %>% filter(School %in% big)
+```
+
+```{rmessage=FALSE, warning=FALSE, echo=FALSE}
+ne <- bigten %>% filter(School == "Nebraska")
+```
+
+The 2021 Nebraska Volleyball team had yet another strong season. They had the talent to make it to the National Championship once again in hopes to bring home their sixth championship trophy. Falling just short to Wisconsin in their 5-set battle, it makes you wonder, what is the talent going to look like for the 2022 season? What were the reasons of Nebraska’s success this season? 
+
+First, we will look at just the top 25 teams. To win games, you need to score more points. Isn’t that how most games work? If you score more points, the more likely you are to win games.
+
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+ggplot() +
+  geom_bar(data=rankings, aes(x=reorder(School, `Total Points`), weight=`Total Points`)) + 
+  geom_bar(data=bigten, aes(x=reorder(School, `Total Points`), weight=`Total Points`), fill="blue") + 
+  geom_bar(data=ne, aes(x=reorder(School, `Total Points`), weight=`Total Points`), fill="red") +
+  coord_flip() + labs(
+    x="School", 
+    y="Total Points", 
+    title="Nebraska Lands 2nd in Total Points", 
+    subtitle="The Huskers were ranked No.2 of top 25 teams with the blue bars being Big Ten teams for the 2021 season.", 
+    caption="Source: ncaa.com | By Alyssa Bizzarri"
+    ) +
+  theme_minimal()+ 
+  theme(
+    plot.title.position = "plot",
+   plot.title = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    ) 
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+big2 <- c("Nebraska", "Michigan", "Ohio St.", "Wisconsin","Minnesota", "Purdue", "Illinios", "Indiana", "Iowa", "Maryland", "Michigan St.", "Northwestern", "Penn St.", "Rutgers")
+bigten2 <- ncaa %>% filter(Conference == "Big Ten")
+```
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+nu <- bigten2 %>% filter(Institution == "Nebraska")
+```
+
+Although Nebraska was right behind Wisconsin in points scored, there is so much more to look at. Points don’t just win themselves. 
+
+Let’s look at more teams than the top 25 to get an ever better look at where Nebraska lies within all D1 schools. Where will they stand in kills and total attacks?
+
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+ggplot() +
+  geom_point(data=ncaa, aes(x=`Kills`, y=`Total Attacks`), color="grey") +
+  geom_point(data=bigten2, aes(x=`Kills`, y=`Total Attacks`), color="blue") +
+  geom_point(data=nu, aes(x=`Kills`, y=`Total Attacks`),
+    color="red") +
+  geom_vline(xintercept = 1332.862) +
+  geom_hline(yintercept = 3749.024) +
+  geom_text_repel(data=bigten2, aes(x=`Kills`, y=`Total Attacks`, label=Institution), nudge_x=1) +
+  coord_flip() + labs(
+    x="Kills", 
+    y="Total Attacks", 
+    title="The Huskers Literally Killed It", 
+    subtitle="Leader in total attacks for Big Ten while keeping up with other top schools.", 
+    caption="Source: ncaa.com | By Alyssa Bizzarri"
+    ) +
+  theme_minimal()+ 
+  theme(
+    plot.title.position = "plot",
+   plot.title = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10),
+    ) 
+```
+
+Nebraska was the leader in total attacks for the Big Ten this season. The more attempts that are taken to hit the ball, the more opportunities there is to score points. See it all comes together. 
+
+But back to the question of what this next season is going to look like. We can see Nebraska was a strong team with strong players. Will that be the same for 2022? 
+
+Let’s take a look at who will be returning for this upcoming season. 
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+nuplayers %>% 
+  select(Player, Yr, Pos, Status, MP, Aces, Digs, Kills) %>% 
+  gt() %>%
+  tab_header(
+    title = "Returning Talent for the Big Red",
+    subtitle = "Names in red are players who had over 200 kills and greyed out rows are players that are not coming back."
+  ) %>% tab_style(
+    style = cell_text(color = "black", weight = "bold", align = "left"),
+    locations = cells_title("title")
+  ) %>% tab_style(
+    style = cell_text(color = "black", align = "left"),
+    locations = cells_title("subtitle")
+  ) %>%
+  tab_source_note(
+    source_note = md("**By:** Alyssa Bizzarri  |  **Source:** ncaa.com")
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "grey"),
+      cell_text(color = "white")
+      ),
+    locations = cells_body(
+      rows = Status == "not-returning")
+  ) %>%
+  tab_style(
+    style = list(
+      cell_text(color = "red")
+      ),
+    locations = cells_body(
+      rows = Kills > 200)
+  )
+```
+
+
+Notice anything pretty big? The only players who had over 200 kills in this last season are returning this fall. That is huge. 
+
+While the team is losing some major assets that helped them throughout this season, Like Stivrins and Akana, the team still looks like they are coming back strong. 
+
+Nebraska will be a competitor once again in this coming fall season. With the returning talent, it could be another great season for the Huskers. The new question is, will it be enough to clinch that sixth National Championship win?
+
+
+
+The code for this point can he found here
+
+
